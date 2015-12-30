@@ -2,7 +2,7 @@
 
 Embed and control YouTube videos in your iOS applications! Neato, right? Let's see how it works.
 
-*Note!*
+**Note!**
 This code should not be used yet. Please use the original code at  gilesvangruisen/Swift-YouTube-Player 
 
 ## Installation
