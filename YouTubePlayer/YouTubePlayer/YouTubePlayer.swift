@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WebKit
 
 public enum YouTubePlayerState: String {
     case Unstarted = "-1"
@@ -69,11 +70,12 @@ public func videoIDFromYouTubeURL(videoURL: NSURL) -> String? {
 }
 
 /** Embed and control YouTube videos */
-public class YouTubePlayerView: UIView, UIWebViewDelegate {
+public class YouTubePlayerView: UIView, WKNavigationDelegate, WKUIDelegate {
 
     public typealias YouTubePlayerParameters = [String: AnyObject]
 
-    private var webView: UIWebView!
+    //private var webView: UIWebView!
+    private var webView: WKWebView!
 
     /** The readiness of the player */
     private(set) public var ready = false
@@ -95,12 +97,12 @@ public class YouTubePlayerView: UIView, UIWebViewDelegate {
 
     override public init(frame: CGRect) {
         super.init(frame: frame)
-        buildWebView(playerParameters())
+        buildWebView(playerParameters(), frame: frame)
     }
 
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        buildWebView(playerParameters())
+        buildWebView(playerParameters(), frame: CGRect.zero)
     }
 
     override public func layoutSubviews() {
@@ -115,11 +117,15 @@ public class YouTubePlayerView: UIView, UIWebViewDelegate {
 
     // MARK: Web view initialization
 
-    private func buildWebView(parameters: [String: AnyObject]) {
-        webView = UIWebView()
-        webView.allowsInlineMediaPlayback = true
-        webView.mediaPlaybackRequiresUserAction = false
-        webView.delegate = self
+    private func buildWebView(parameters: [String: AnyObject], frame: CGRect) {
+        let configuration = WKWebViewConfiguration()
+        configuration.allowsInlineMediaPlayback = true
+        configuration.mediaPlaybackRequiresUserAction = false
+        
+        webView = WKWebView(frame: frame, configuration: configuration)
+        
+        webView.navigationDelegate = self
+        webView.UIDelegate = self
         webView.scrollView.scrollEnabled = false
     }
 
@@ -182,7 +188,8 @@ public class YouTubePlayerView: UIView, UIWebViewDelegate {
 
     private func evaluatePlayerCommand(command: String) {
         let fullCommand = "player." + command + ";"
-        webView.stringByEvaluatingJavaScriptFromString(fullCommand)
+        //webView.stringByEvaluatingJavaScriptFromString(fullCommand)
+        webView.evaluateJavaScript(fullCommand, completionHandler: nil)
     }
 
 
